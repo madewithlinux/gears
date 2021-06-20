@@ -5,26 +5,45 @@
     fill: string;
     teeth: number;
     radius: number;
-    origin: [number, number];
+    x: number;
+    y: number;
     annulus?: boolean;
+    reverse?: boolean;
   }
 </script>
 
 <script lang="ts">
   import { onMount } from "svelte";
+  import { scaleLinear } from "d3-scale";
+  import { range } from "lodash";
+  import { polarToCartesian } from "./lib/util";
   import Gear from "./Gear.svelte";
 
-  let speed = 0.08;
-  let holeRadius = 0.02;
-  let toothRadius = 0.008;
-  let y = Math.cos((2 * Math.PI) / 3);
-  let x = Math.sin((2 * Math.PI) / 3);
-  let gears: GearDef[] = [
-    { fill: "#c6dbef", teeth: 80, radius: -0.5, origin: [0, 0], annulus: true },
-    { fill: "#6baed6", teeth: 16, radius: +0.1, origin: [0, 0] },
-    { fill: "#9ecae1", teeth: 32, radius: -0.2, origin: [0, -0.3] },
-    { fill: "#9ecae1", teeth: 32, radius: -0.2, origin: [-0.3 * x, -0.3 * y] },
-    { fill: "#9ecae1", teeth: 32, radius: -0.2, origin: [0.3 * x, -0.3 * y] },
+  export let speed = 0.08;
+  export let holeRadius = 0.02;
+  export let toothRadius = 0.008;
+  export let modulus = 1 / 80;
+
+  export let numPlanets = 3;
+
+  export let annulusTeeth = 80;
+  export let planetTeeth = 32;
+  export let sunTeeth = 16;
+
+  export let annulusRadius = (modulus * annulusTeeth) / 2;
+  export let planetRadius = (modulus * planetTeeth) / 2;
+  export let sunRadius = (modulus * sunTeeth) / 2;
+
+  $: angleScale = scaleLinear([0, numPlanets], [0, 2 * Math.PI]);
+  $: planetCenterR = sunRadius + planetRadius;
+
+  $: gears = [
+    ...range(numPlanets).map((i) => {
+      const [x, y] = polarToCartesian(angleScale(i), planetCenterR);
+      return { fill: "#9ecae1", teeth: planetTeeth, radius: planetRadius, x, y };
+    }),
+    { fill: "#c6dbef", teeth: annulusTeeth, radius: annulusRadius, x: 0, y: 0, annulus: true },
+    { fill: "#6baed6", teeth: sunTeeth, radius: sunRadius, x: 0, y: 0, reverse: true },
   ];
 
   let frameAngle = 0;
@@ -57,7 +76,7 @@
 >
   <g transform={`rotate(${frameAngle % 360})`}>
     {#each gears as d, i (i)}
-      <g><Gear {...d} {toothRadius} {holeRadius} {angle} /></g>
+      <Gear {...d} {toothRadius} {holeRadius} {angle} />
     {/each}
   </g>
 </svg>

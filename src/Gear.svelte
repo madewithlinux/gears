@@ -6,14 +6,19 @@
   export let fill: string;
   export let teeth: number;
   export let radius: number;
-  export let origin: [number, number];
+  export let x: number;
+  export let y: number;
   export let annulus: boolean = false;
   export let toothRadius: number;
   export let holeRadius: number;
   export let angle: number = 0;
+  export let reverse: boolean = false;
 
-  $: transform = `translate(${origin}) rotate(${(angle / radius) % 360})`;
+  $: angleSign = reverse ? -1 : 1;
+  $: transform = `translate(${x},${y}) rotate(${((angleSign * angle) / radius) % 360})`;
   $: d = gearPath({ teeth, radius, annulus, toothRadius, holeRadius });
 </script>
 
-<path {fill} {transform} {d} />
+<g>
+  <path {fill} {transform} {d} />
+</g>
