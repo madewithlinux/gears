@@ -18,33 +18,25 @@
   import { range } from "lodash";
   import { polarToCartesian } from "./lib/util";
   import Gear from "./Gear.svelte";
+import { getGearsContext } from "./lib/gears_context";
 
-  export let speed = 0.08;
-  export let holeRadius = 0.02;
-  export let toothRadius = 0.008;
-  export let modulus = 1 / 80;
+  let { speed, holeRadius, toothRadius, modulus, numPlanets, annulusTeeth, planetTeeth, sunTeeth } =
+    getGearsContext();
 
-  export let numPlanets = 3;
-
-  export let annulusTeeth = 80;
-  export let planetTeeth = 32;
-  export let sunTeeth = 16;
-
-  export let annulusRadius = (modulus * annulusTeeth) / 2;
-  export let planetRadius = (modulus * planetTeeth) / 2;
-  export let sunRadius = (modulus * sunTeeth) / 2;
-
-  $: angleScale = scaleLinear([0, numPlanets], [0, 2 * Math.PI]);
+  $: annulusRadius = ($modulus * $annulusTeeth) / 2;
+  $: planetRadius = ($modulus * $planetTeeth) / 2;
+  $: sunRadius = ($modulus * $sunTeeth) / 2;
+  $: angleScale = scaleLinear([0, $numPlanets], [0, 2 * Math.PI]);
   $: planetCenterR = sunRadius + planetRadius;
 
   $: gears = [
-    ...range(numPlanets).map((i) => {
+    ...range($numPlanets).map((i) => {
       const [x, y] = polarToCartesian(angleScale(i), planetCenterR);
-      return { fill: "#9ecae1", teeth: planetTeeth, radius: planetRadius, x, y };
+      return { fill: "#9ecae1", teeth: $planetTeeth, radius: planetRadius, x, y };
     }),
-    { fill: "#c6dbef", teeth: annulusTeeth, radius: annulusRadius, x: 0, y: 0, annulus: true },
-    { fill: "#6baed6", teeth: sunTeeth, radius: sunRadius, x: 0, y: 0, reverse: true },
-  ];
+    { fill: "#c6dbef", teeth: $annulusTeeth, radius: annulusRadius, x: 0, y: 0, annulus: true },
+    { fill: "#6baed6", teeth: $sunTeeth, radius: sunRadius, x: 0, y: 0, reverse: true },
+  ] as GearDef[];
 
   let frameAngle = 0;
   let angle = 0;
@@ -55,8 +47,8 @@
   function step(timestamp: DOMHighResTimeStamp) {
     // correction factor for relative to 60hz
     const factor = prevTimestamp === undefined ? 1 : (timestamp - prevTimestamp) / ((1 / 60) * 1000);
-    angle = angle + speed * factor;
-    frameAngle = frameAngle + (speed * factor) / frameRadius;
+    angle = angle + $speed * factor;
+    frameAngle = frameAngle + ($speed * factor) / frameRadius;
     prevTimestamp = timestamp;
     animationFrame = requestAnimationFrame(step);
   }
@@ -76,7 +68,7 @@
 >
   <g transform={`rotate(${frameAngle % 360})`}>
     {#each gears as d, i (i)}
-      <Gear {...d} {toothRadius} {holeRadius} {angle} />
+      <Gear {...d} toothRadius={$toothRadius} holeRadius={$holeRadius} {angle} />
     {/each}
   </g>
 </svg>
@@ -85,6 +77,5 @@
   .gears {
     max-width: 640px;
     display: block;
-    margin: auto;
   }
 </style>
