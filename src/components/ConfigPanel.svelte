@@ -1,8 +1,9 @@
 <script lang="ts">
   import { getGearsContext } from "../lib/gears_context";
+  import ConfigPresets from "./ConfigPresets.svelte";
   import InputNumber from "./InputNumber.svelte";
-  
-  let { speed, holeRadius, toothRadius, modulus, numPlanets, annulusTeeth, planetTeeth, sunTeeth } =
+
+  const { speed, holeRadius, toothRadius, modulus, numPlanets, annulusTeeth, planetTeeth, sunTeeth } =
     getGearsContext();
 </script>
 
@@ -14,10 +15,11 @@
     <InputNumber id="toothRadius" bind:value={$toothRadius} />
     <InputNumber id="modulus" bind:value={$modulus} />
     <InputNumber id="numPlanets" bind:value={$numPlanets} integer />
-    <InputNumber id="annulusTeeth" bind:value={$annulusTeeth} integer />
-    <InputNumber id="planetTeeth" bind:value={$planetTeeth} integer />
     <InputNumber id="sunTeeth" bind:value={$sunTeeth} integer />
+    <InputNumber id="planetTeeth" bind:value={$planetTeeth} integer />
+    <InputNumber id="annulusTeeth" bind:value={$annulusTeeth} integer />
   </div>
+  <ConfigPresets />
 </div>
 
 <style>

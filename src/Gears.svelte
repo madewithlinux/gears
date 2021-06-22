@@ -9,6 +9,7 @@
     y: number;
     annulus?: boolean;
     reverse?: boolean;
+    toothOffset?: number;
   }
 </script>
 
@@ -18,23 +19,42 @@
   import { range } from "lodash";
   import { polarToCartesian } from "./lib/util";
   import Gear from "./Gear.svelte";
-import { getGearsContext } from "./lib/gears_context";
+  import { getGearsContext } from "./lib/gears_context";
 
-  let { speed, holeRadius, toothRadius, modulus, numPlanets, annulusTeeth, planetTeeth, sunTeeth } =
+  const { speed, holeRadius, toothRadius, modulus, numPlanets, annulusTeeth, planetTeeth, sunTeeth } =
     getGearsContext();
 
   $: annulusRadius = ($modulus * $annulusTeeth) / 2;
   $: planetRadius = ($modulus * $planetTeeth) / 2;
   $: sunRadius = ($modulus * $sunTeeth) / 2;
-  $: angleScale = scaleLinear([0, $numPlanets], [0, 2 * Math.PI]);
   $: planetCenterR = sunRadius + planetRadius;
-
+  $: frameWidth = (annulusRadius + 3 * $toothRadius) * 2 * 1.02;
+  // TODO: put this back into some kind of context object
+  $: console.log({frameWidth})
+  
+  $: angleScale = scaleLinear([0, $numPlanets], [0, 2 * Math.PI]);
   $: gears = [
     ...range($numPlanets).map((i) => {
-      const [x, y] = polarToCartesian(angleScale(i), planetCenterR);
-      return { fill: "#9ecae1", teeth: $planetTeeth, radius: planetRadius, x, y };
+      const angleRadians = angleScale(i);
+      const [x, y] = polarToCartesian(angleRadians, planetCenterR);
+
+      const oddFlip = [$sunTeeth, $planetTeeth, $annulusTeeth]
+        .map((v) => (v % 4 == 0 ? 0 : 180))
+        .reduce((a, b) => a + b, 0);
+      const angleOffsetDeg =
+        (((($sunTeeth + $planetTeeth) / $planetTeeth) * i) / $numPlanets) * 360 + oddFlip;
+
+      return { fill: "#9ecae1", teeth: $planetTeeth, radius: planetRadius, x, y, angleOffsetDeg };
     }),
-    { fill: "#c6dbef", teeth: $annulusTeeth, radius: annulusRadius, x: 0, y: 0, annulus: true },
+    {
+      fill: "#c6dbef",
+      teeth: $annulusTeeth,
+      radius: annulusRadius,
+      x: 0,
+      y: 0,
+      annulus: true,
+      angleOffsetDeg: $sunTeeth % 2 == 0 ? 0 : 180,
+    },
     { fill: "#6baed6", teeth: $sunTeeth, radius: sunRadius, x: 0, y: 0, reverse: true },
   ] as GearDef[];
 
@@ -46,9 +66,11 @@ import { getGearsContext } from "./lib/gears_context";
 
   function step(timestamp: DOMHighResTimeStamp) {
     // correction factor for relative to 60hz
-    const factor = prevTimestamp === undefined ? 1 : (timestamp - prevTimestamp) / ((1 / 60) * 1000);
-    angle = angle + $speed * factor;
-    frameAngle = frameAngle + ($speed * factor) / frameRadius;
+    const frameFactor = prevTimestamp === undefined ? 1 : (timestamp - prevTimestamp) / ((1 / 60) * 1000);
+    const sizeFactor = frameWidth;
+    const adjustedSpeed = $speed * frameFactor * sizeFactor / 16;
+    angle = angle + adjustedSpeed;
+    frameAngle = frameAngle + adjustedSpeed / frameRadius;
     prevTimestamp = timestamp;
     animationFrame = requestAnimationFrame(step);
   }
@@ -62,12 +84,12 @@ import { getGearsContext } from "./lib/gears_context";
 <svg
   class="gears"
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="-0.53,-0.53,1.06,1.06"
+  viewBox="{-frameWidth / 2},{-frameWidth / 2},{frameWidth},{frameWidth}"
   stroke="black"
-  stroke-width={1 / 640}
+  stroke-width={frameWidth / 640}
 >
   <g transform={`rotate(${frameAngle % 360})`}>
-    {#each gears as d, i (i)}
+    {#each gears as d (d)}
       <Gear {...d} toothRadius={$toothRadius} holeRadius={$holeRadius} {angle} />
     {/each}
   </g>

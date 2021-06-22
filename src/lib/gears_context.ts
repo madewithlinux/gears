@@ -15,10 +15,10 @@ export interface GearsContext {
 }
 
 export const getDefaultGearsContext = () => ({
-  speed: writable(0.08),
-  holeRadius: writable(0.02),
-  toothRadius: writable(0.008),
-  modulus: writable(1 / 80),
+  speed: writable(1),
+  holeRadius: writable(2),
+  toothRadius: writable(1),
+  modulus: writable(1.5),
   numPlanets: writable(3),
   annulusTeeth: writable(80),
   planetTeeth: writable(32),

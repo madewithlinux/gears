@@ -16,10 +16,8 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 export interface GearDef {
-  // fill: string;
   teeth: number;
   radius: number;
-  // origin: [number, number];
   annulus?: boolean;
   toothRadius: number;
   holeRadius: number;
