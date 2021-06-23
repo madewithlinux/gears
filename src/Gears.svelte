@@ -9,17 +9,18 @@
     y: number;
     annulus?: boolean;
     reverse?: boolean;
-    toothOffset?: number;
+    angleOffsetDeg?: number;
   }
 </script>
 
 <script lang="ts">
-  import { onMount } from "svelte";
   import { scaleLinear } from "d3-scale";
   import { range } from "lodash";
-  import { polarToCartesian } from "./lib/util";
+  import { onMount } from "svelte";
   import Gear from "./Gear.svelte";
   import { getGearsContext } from "./lib/gears_context";
+  import { meshNextGear } from "./lib/gear_meshing";
+  import { polarToCartesian } from "./lib/util";
 
   const { speed, holeRadius, toothRadius, modulus, numPlanets, annulusTeeth, planetTeeth, sunTeeth } =
     getGearsContext();
@@ -30,33 +31,25 @@
   $: planetCenterR = sunRadius + planetRadius;
   $: frameWidth = (annulusRadius + 3 * $toothRadius) * 2 * 1.02;
   // TODO: put this back into some kind of context object
-  $: console.log({frameWidth})
-  
+  $: console.log({ frameWidth });
+
   $: angleScale = scaleLinear([0, $numPlanets], [0, 2 * Math.PI]);
-  $: gears = [
-    ...range($numPlanets).map((i) => {
-      const angleRadians = angleScale(i);
-      const [x, y] = polarToCartesian(angleRadians, planetCenterR);
-
-      const oddFlip = [$sunTeeth, $planetTeeth, $annulusTeeth]
-        .map((v) => (v % 4 == 0 ? 0 : 180))
-        .reduce((a, b) => a + b, 0);
-      const angleOffsetDeg =
-        (((($sunTeeth + $planetTeeth) / $planetTeeth) * i) / $numPlanets) * 360 + oddFlip;
-
-      return { fill: "#9ecae1", teeth: $planetTeeth, radius: planetRadius, x, y, angleOffsetDeg };
-    }),
-    {
-      fill: "#c6dbef",
-      teeth: $annulusTeeth,
-      radius: annulusRadius,
-      x: 0,
-      y: 0,
-      annulus: true,
-      angleOffsetDeg: $sunTeeth % 2 == 0 ? 0 : 180,
-    },
-    { fill: "#6baed6", teeth: $sunTeeth, radius: sunRadius, x: 0, y: 0, reverse: true },
-  ] as GearDef[];
+  $: sunGear = { fill: "#6baed6", teeth: $sunTeeth, radius: sunRadius, x: 0, y: 0, reverse: true };
+  $: planetGears = range($numPlanets).map((i) => {
+    const angleRadians = angleScale(i);
+    const [x, y] = polarToCartesian(angleRadians, planetCenterR);
+    const gear = { fill: "#9ecae1", teeth: $planetTeeth, radius: planetRadius, x, y };
+    return meshNextGear(sunGear, gear);
+  });
+  $: annulusGear = meshNextGear(planetGears[0], {
+    fill: "#c6dbef",
+    teeth: $annulusTeeth,
+    radius: annulusRadius,
+    x: 0,
+    y: 0,
+    annulus: true,
+  });
+  $: gears = [...planetGears, annulusGear, sunGear] as GearDef[];
 
   let frameAngle = 0;
   let angle = 0;
@@ -68,7 +61,7 @@
     // correction factor for relative to 60hz
     const frameFactor = prevTimestamp === undefined ? 1 : (timestamp - prevTimestamp) / ((1 / 60) * 1000);
     const sizeFactor = frameWidth;
-    const adjustedSpeed = $speed * frameFactor * sizeFactor / 16;
+    const adjustedSpeed = ($speed * frameFactor * sizeFactor) / 16;
     angle = angle + adjustedSpeed;
     frameAngle = frameAngle + adjustedSpeed / frameRadius;
     prevTimestamp = timestamp;

@@ -6,11 +6,10 @@
   const presets = [
     { sun: 16, planet: 32, annulus: 80, n: 3 },
     { sun: 43, planet: 19, annulus: 81, n: 4 },
-    { sun: 45, planet: 19, annulus: 83, n: 4 },
-    { sun: 46, planet: 18, annulus: 82, n: 4 },
-    { sun: 47, planet: 19, annulus: 85, n: 4 },
-    { sun: 50, planet: 18, annulus: 86, n: 4 },
-    { sun: 53, planet: 19, annulus: 91, n: 4 },
+    { sun: 46, planet: 19, annulus: 84, n: 5 },
+    { sun: 44, planet: 19, annulus: 82, n: 6 },
+    { sun: 45, planet: 18, annulus: 81, n: 7 },
+    { sun: 50, planet: 18, annulus: 86, n: 8 },
   ];
 </script>
 
