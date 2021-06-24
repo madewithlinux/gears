@@ -6,7 +6,7 @@
   setGearsContext(getDefaultGearsContext());
 </script>
 
-<main id="fooasdfasdf">
+<main>
   <ConfigPanel />
   <Gears />
 </main>
@@ -18,5 +18,16 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+  }
+  @media (max-width: 1000px) {
+    :global(body) {
+      padding: 0;
+    }
+    main {
+      max-width: none;
+      padding-left: 10px;
+      padding-right: 10px;
+      display: unset;
+    }
   }
 </style>

@@ -1,8 +1,6 @@
 <svelte:options namespace="http://www.w3.org/2000/svg" />
 
 <script lang="typescript">
-  import { onMount } from "svelte";
-
   import { gearPath } from "./lib/epicyclic_gearing";
   import { cssVariables } from "./lib/util";
 

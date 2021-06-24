@@ -7,9 +7,9 @@
     getGearsContext();
 </script>
 
-<div>
+<div class="config">
   <h1>config</h1>
-  <div class="config">
+  <div class="grid">
     <InputNumber id="speed" bind:value={$speed} />
     <InputNumber id="holeRadius" bind:value={$holeRadius} />
     <InputNumber id="toothRadius" bind:value={$toothRadius} />
@@ -24,11 +24,14 @@
 
 <style>
   .config {
+    box-sizing: border-box;
     width: max-content;
     max-width: 100%;
+    font-size: 1.2rem;
+  }
+  .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    font-size: 1.2rem;
   }
 </style>

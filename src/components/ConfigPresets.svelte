@@ -38,11 +38,10 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 10px;
-    font-size: 1.2rem;
   }
 
   button {
-    font-size: 1.2rem;
+    font-size: inherit;
     margin: 5px;
     padding: 10px;
   }
