@@ -3,6 +3,7 @@
 https://svelte.dev/repl/3bf1ad9f2fb2479d8c362d3aa50f7085?version=3.14.1
 https://observablehq.com/@mbostock/epicyclic-gearing?ui=classic
 https://github.com/liabru/gears-d3-js
+https://github.com/liabru/gears-d3-js/blob/master/gears.d3.js
 
 https://svelte.dev/docs
 https://developer.mozilla.org/en-US/docs/Web/SVG
@@ -11,6 +12,8 @@ https://developer.mozilla.org/en-US/docs/Web/SVG
 https://svelte.dev/repl/12d9350f9d6b44f78031e7391a6415bb?version=3.37.0
 
 https://geargenerator.com/#200,200,100,6,1,3,2685.8999999997754,4,1,8,2,4,27,-90,0,0,0,0,0,0,16,4,4,27,-60,0,0,0,0,1,1,12,1,12,20,-60,0,0,0,0,2,0,60,5,12,20,0,1,0,0,0,0,0,3,-1061
+
+https://www.arc.id.au/GearDrawing.html
 
 
 

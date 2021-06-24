@@ -16,7 +16,6 @@
 <script lang="ts">
   import { scaleLinear } from "d3-scale";
   import { range } from "lodash";
-  import { onMount } from "svelte";
   import Gear from "./Gear.svelte";
   import { getGearsContext } from "./lib/gears_context";
   import { meshNextGear } from "./lib/gear_meshing";
@@ -52,26 +51,7 @@
   $: gears = [...planetGears, annulusGear, sunGear] as GearDef[];
 
   let frameAngle = 0;
-  let angle = 0;
-  let frameRadius: number = Infinity;
-  let prevTimestamp: number | undefined = undefined;
-  let animationFrame: number | undefined = undefined;
 
-  function step(timestamp: DOMHighResTimeStamp) {
-    // correction factor for relative to 60hz
-    const frameFactor = prevTimestamp === undefined ? 1 : (timestamp - prevTimestamp) / ((1 / 60) * 1000);
-    const sizeFactor = frameWidth;
-    const adjustedSpeed = ($speed * frameFactor * sizeFactor) / 16;
-    angle = angle + adjustedSpeed;
-    frameAngle = frameAngle + adjustedSpeed / frameRadius;
-    prevTimestamp = timestamp;
-    animationFrame = requestAnimationFrame(step);
-  }
-
-  onMount(() => {
-    animationFrame = requestAnimationFrame(step);
-    return () => clearInterval(animationFrame);
-  });
 </script>
 
 <svg
@@ -83,7 +63,7 @@
 >
   <g transform={`rotate(${frameAngle % 360})`}>
     {#each gears as d (d)}
-      <Gear {...d} toothRadius={$toothRadius} holeRadius={$holeRadius} {angle} />
+      <Gear {...d} toothRadius={$toothRadius} holeRadius={$holeRadius} {frameWidth} speedFactor={$speed} />
     {/each}
   </g>
 </svg>
